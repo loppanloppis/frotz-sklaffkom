@@ -1,3 +1,5 @@
+# BASED ON FROTZ V2.56pre - adapted for use as a BBS door with SklaffKOM
+
 # FROTZ V2.55
 An interpreter for all Infocom and other Z-machine games.
 Complies with the Z-Machine Standard version 1.1.
