@@ -35,6 +35,29 @@
 
 #include "ux_frotz.h"
 
+#include "../common/frotz.h"   /* not strictly needed here, harmless */
+
+#ifndef SKLAFF_STATUS_NORMAL
+#define SKLAFF_STATUS_NORMAL 1
+#endif
+
+/* Track whether we are currently drawing on the V1–V3 status line (row 1) */
+#if SKLAFF_STATUS_NORMAL
+static int sklaff_status_active = 0;
+#endif
+
+/* Strip reverse/standout when status line is active */
+static inline int sklaff_mask_attrs(int a)
+{
+#if SKLAFF_STATUS_NORMAL
+    if (sklaff_status_active) a &= ~(A_REVERSE | A_STANDOUT);
+#endif
+    return a;
+}
+
+
+
+
 /* When color_enabled is FALSE, we still minimally keep track of colors by
  * setting current_color to A_REVERSE if the game reads the default
  * foreground and background colors and swaps them.  If we don't do this,
@@ -135,27 +158,39 @@ static int unix_convert(int color)
  */
 void os_set_colour (int new_foreground, int new_background)
 {
-	if (new_foreground == 1) new_foreground = z_header.default_foreground;
-	if (new_background == 1) new_background = z_header.default_background;
-	if (u_setup.color_enabled) {
+    if (new_foreground == 1) new_foreground = z_header.default_foreground;
+    if (new_background == 1) new_background = z_header.default_background;
+
+    if (u_setup.color_enabled) {
 #ifdef COLOR_SUPPORT
-		static int colorspace[10][10];
-		static int n_colors = 0;
+        static int colorspace[10][10];
+        static int n_colors = 0;
 
-		if (!colorspace[new_foreground][new_background]) {
-			init_pair(++n_colors, unix_convert(new_foreground),
-				unix_convert(new_background));
-			colorspace[new_foreground][new_background] = n_colors;
-		}
-		u_setup.current_color = COLOR_PAIR(colorspace[new_foreground][new_background]);
+        if (!colorspace[new_foreground][new_background]) {
+            init_pair(++n_colors,
+                      unix_convert(new_foreground),
+                      unix_convert(new_background));
+            colorspace[new_foreground][new_background] = n_colors;
+        }
+        u_setup.current_color = COLOR_PAIR(colorspace[new_foreground][new_background]);
 #endif
-	} else
-		u_setup.current_color = (((new_foreground == z_header.default_background)
-			&& (new_background == z_header.default_foreground))
-			? A_REVERSE : 0);
-	os_set_text_style(u_setup.current_text_style);
+    } else {
+        /* Classic Frotz: flip to reverse if fg/bg == defaults.
+           Not on the status line—we want plain white-on-black there. */
+#if SKLAFF_STATUS_NORMAL
+        if (sklaff_status_active) {
+            u_setup.current_color = 0;    /* A_NORMAL */
+        } else
+#endif
+        u_setup.current_color =
+            (((new_foreground == z_header.default_background) &&
+              (new_background == z_header.default_foreground))
+             ? A_REVERSE : 0);
+    }
 
+    os_set_text_style(u_setup.current_text_style);
 } /* os_set_colour */
+
 
 
 /*
@@ -190,7 +225,16 @@ void os_set_text_style (int new_style)
 	int temp = 0;
 
 	u_setup.current_text_style = new_style;
-	if (new_style & REVERSE_STYLE) temp |= A_REVERSE;
+/* Before:
+ * if (new_style & REVERSE_STYLE) temp |= A_REVERSE;
+ */
+if (new_style & REVERSE_STYLE) {
+#if SKLAFF_STATUS_NORMAL
+    if (!sklaff_status_active) temp |= A_REVERSE;
+#else
+    temp |= A_REVERSE;
+#endif
+}
 	if (new_style & BOLDFACE_STYLE) temp |= A_BOLD;
 	if (new_style & EMPHASIS_STYLE) {
 		switch(u_setup.emphasis_mode) {
@@ -213,7 +257,10 @@ void os_set_text_style (int new_style)
 			break;
 		}
 	}
-	attrset(temp ^ u_setup.current_color);
+attrset( sklaff_mask_attrs( temp ^ u_setup.current_color ) );
+
+
+
 } /* os_set_text_style */
 
 
@@ -387,8 +434,12 @@ int os_string_width(const zchar *s)
  */
 void os_set_cursor(int y, int x)
 {
-	/* Curses thinks the top left is (0,0) */
-	move(--y, --x);
+#if SKLAFF_STATUS_NORMAL
+    /* y is 1-based here; row 1 is the V1–V3 status line */
+    sklaff_status_active = (y == 1);
+#endif
+    /* Curses thinks the top left is (0,0) */
+    move(--y, --x);
 } /* os_set_cursor */
 
 

@@ -2,7 +2,7 @@
 # GNU make is required.
 
 # Choose your preferred C compiler
-#CC = gcc
+CC = gcc
 #CC = clang
 
 # Enable compiler warnings. This is an absolute minimum.
@@ -25,10 +25,10 @@ SYSCONFDIR ?= /etc
 
 # Choose your sound support
 # OPTIONS: ao, none
-SOUND_TYPE ?= ao
+SOUND_TYPE ?= none
 
 # Choose DOS options
-#DOS_NO_SOUND ?= yes
+DOS_NO_SOUND ?= yes
 DOS_NO_BLORB ?= yes
 DOS_NO_GRAPHICS ?= yes
 DOS_NO_TRUECOLOUR ?= yes
