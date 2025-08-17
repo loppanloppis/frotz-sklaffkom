@@ -1,4 +1,6 @@
 # BASED ON FROTZ V2.56pre - adapted for use as a BBS door with SklaffKOM
+All credit go to David Griffith @ https://gitlab.com/DavidGriffith/frotz , all I did was to change some colors...
+- - - - - - -
 
 # FROTZ V2.55
 An interpreter for all Infocom and other Z-machine games.
