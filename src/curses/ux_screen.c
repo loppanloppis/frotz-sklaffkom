@@ -35,6 +35,21 @@
 
 #include "ux_frotz.h"
 
+#ifndef SKLAFF_STATUS_NORMAL
+#define SKLAFF_STATUS_NORMAL 1
+#endif
+
+static inline int sklaff_mask_attrs(int a)
+{
+#if SKLAFF_STATUS_NORMAL
+    extern int sklaff_status_active; /* defined in ux_text.c */
+    if (sklaff_status_active) a &= ~(A_REVERSE | A_STANDOUT);
+#endif
+    return a;
+}
+
+
+
 extern void restart_header(void);
 
 static WINDOW *saved_screen = NULL;
@@ -114,7 +129,9 @@ void os_scroll_area(int top, int left, int bottom, int right, int units)
 
 		getyx(stdscr, y, x);
 		/* Must turn off attributes during copying.  */
-		attrset(0);
+attrset( sklaff_mask_attrs(0) );
+
+
 		if (units > 0) {
 			for (row = top; row <= bottom - units; row++) {
 				for (col = left; col <= right; col++) {
