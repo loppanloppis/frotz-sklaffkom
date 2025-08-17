@@ -1,5 +1,5 @@
 # BASED ON FROTZ V2.56pre - adapted for use as a BBS door with SklaffKOM
-All credit go to David Griffith @ https://gitlab.com/DavidGriffith/frotz , all I did was to change some colors...
+All credits go the original authors and to David Griffith @ https://gitlab.com/DavidGriffith/frotz , all I did was to change some colors...
 - - - - - - -
 
 # FROTZ V2.55
