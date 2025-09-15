@@ -63,6 +63,7 @@ static void parse_options(int argc, char **argv);
 
 #define INFORMATION "\
 An interpreter for all Infocom and other Z-Machine games.\n\
+Optimized for SklaffKOM by PL 2025-09-15.\n\
 \n\
 Syntax: frotz [options] story-file [blorb file]\n\
   -a   watch attribute setting    \t -o   watch object movement\n\
